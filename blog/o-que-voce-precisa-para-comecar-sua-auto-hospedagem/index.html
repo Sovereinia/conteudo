@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O que você precisa para começar sua auto-hospedagem</title>
+<meta name="description" content="Se você quer hospedar seus próprios aplicativos, como um servidor de arquivos, e-mail, site ou rede social, precisa preparar um servidor básico com algu…">
+<meta name="author" content="Sovereinia">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sovereinia.org/blog/o-que-voce-precisa-para-comecar-sua-auto-hospedagem/">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Sovereinia">
+<meta property="og:title" content="O que você precisa para começar sua auto-hospedagem">
+<meta property="og:description" content="Se você quer hospedar seus próprios aplicativos, como um servidor de arquivos, e-mail, site ou rede social, precisa preparar um servidor básico com algu…">
+<meta property="og:url" content="https://sovereinia.org/blog/o-que-voce-precisa-para-comecar-sua-auto-hospedagem/">
+</head>
+<body>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="/"><img src="/logo.svg" alt="Sovereinia"> Sovereinia</a>
+    <nav><a href="/guia/">Guia</a>
+<a href="/blog/">Blog</a>
+<a href="/sobre/">Sobre</a>
+<a href="/principios-da-sovereinia/">Princípios</a>
+<a href="/dicionario/">Dicionário</a>
+<a href="/demos/">Demos</a>
+<a href="/como-contribuir/">Contribuir</a></nav>
+  </div>
+</header>
+<main>
+
+<h1>O que você precisa para começar sua auto-hospedagem</h1>
+<p class="meta">Publicado em 2025-05-24</p>
+<p>Se você quer hospedar seus próprios aplicativos, como um servidor de arquivos, e-mail, site ou rede social, precisa preparar um servidor básico com alguns elementos essenciais. Esse artigo lista os requisitos e componentes que todo servidor de auto-hospedagem deve ter.</p>
+<blockquote>
+<p>Nos guias de instalação de aplicativos, vamos assumir que você já tem tudo isso configurado.</p>
+</blockquote>
+<br>
+<hr>
+<br>
+<h2 id="1-escolha-sua-m%C3%A1quina">1. Escolha sua máquina</h2>
+<p>Você pode usar praticamente qualquer máquina como seu servidor de auto-hospedagem:</p>
+<ul>
+<li>Um computador antigo ou notebook que você não usa mais</li>
+<li>Um computador dedicado para isso</li>
+<li>Um servidor</li>
+<li>Um mini-PC (como Intel NUC ou Raspberry Pi)</li>
+<li>Um VPS (Servidor Virtual Privado)</li>
+<li>Uma máquina virtual em núvem</li>
+</ul>
+<blockquote>
+<p>Recomendamos trocar HDs antigos por SSD.</p>
+</blockquote>
+<blockquote>
+<p>Não recomendamos usar seu computador de uso diário para auto-hospedagem pois sempre que você desligar ele ou desconectá-lo da internet, os serviços vão ficar indisponíveis.</p>
+</blockquote>
+<h3 id="especifica%C3%A7%C3%B5es-m%C3%ADnimas">Especificações mínimas</h3>
+<h4 id="para-ubuntu-server-sem-interface-gr%C3%A1fica">Para Ubuntu Server (sem interface gráfica):</h4>
+<ul>
+<li><strong>Mínimo</strong>: 2 vCPUs, 2 GB de RAM, 20 GB de armazenamento</li>
+<li><strong>Recomendado</strong>: 2 vCPUs, 4 GB de RAM, SSD 50 GB ou mais</li>
+</ul>
+<h4 id="para-ubuntu-desktop-com-interface-gr%C3%A1fica">Para Ubuntu Desktop (com interface gráfica):</h4>
+<ul>
+<li><strong>Mínimo</strong>: 2 vCPUs, 4 GB de RAM, 25 GB de armazenamento</li>
+<li><strong>Recomendado</strong>: 4 vCPUs, 8 GB de RAM, SSD 50 GB ou mais</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2 id="2-prepare-o-terreno">2. Prepare o terreno</h2>
+<p>Se você escolheu usar um VPS ou máquina virtual em núvem, pode pular para o item 3 - Instale o Ubuntu.</p>
+<p>Instale sua máquina em um local bem ventilado, com acesso à internet de qualidade e conectada via cabo ao roteador. Considere instalar um nobreak para o roteador e para a máquina caso deseje que os serviços continuem online mesmo durante quedas de energia.</p>
+<p>Na parte a seguir, se você não tem familiaridade com Redes de computadores, sugerimos entrar em contato com o seu provedor de internet e pedir para te ajudarem.</p>
+<blockquote>
+<p>Para acessar seu servidor pela internet, é necessário que ele esteja visível externamente, e para isso, você precisa de um <strong>IP público</strong>.</p>
+</blockquote>
+<p>Além disso, você precisará configurar o <strong>roteador</strong> para permitir que o tráfego externo chegue até a sua máquina. A forma mais simples de fazer isso é:</p>
+<ol>
+<li>Fixar o IP da sua máquina no roteador (normalmente na seção <em>DHCP estático</em> ou <em>Reserva de IP</em>).</li>
+<li>Ativar o <strong>modo DMZ</strong> no roteador e apontá-lo para o IP fixo da máquina onde está o Ubuntu.</li>
+</ol>
+<blockquote>
+<p>⚠️ Essa configuração direciona todo o tráfego externo para seu servidor, então só faça isso se o firewall estiver corretamente configurado.</p>
+</blockquote>
+<p>Alternativamente, é possível abrir apenas as portas específicas via redirecionamento manual (<em>port forwarding</em>).</p>
+<br>
+<hr>
+<br>
+<h2 id="3-instale-o-ubuntu">3. Instale o Ubuntu</h2>
+<p>A base de tudo é o sistema operacional. Recomendamos o <strong>Ubuntu</strong> por oferecer uma excelente compatibilidade, ter uma comunidade ativa, e ser robusto. Para melhor utilização da sua máquina, recomentamos o <strong>Ubuntu Server</strong>, em que tudo é feito através da linha de comando.</p>
+<p>Também é possível usar o Ubuntu Desktop, caso você prefira uma interface gráfica, mas o desempenho será um pouco menor.</p>
+<p>Todos os tutoriais da Sovereinia são escritos considerando que você só tem acesso à linha de comando.</p>
+<p>É importante instalar a última versão LTS disponível. No momento da escrita deste artigo: <strong>Ubuntu 24.04.2 LTS</strong>.</p>
+<p>Se você estiver usando VPS ou máquina virtual em núvem, normalmente há uma opção para selecionar o Ubuntu, e o provedor faz a instalação automaticamente.</p>
+<br>
+<hr>
+<br>
+<h2 id="4-componentes-essenciais">4. Componentes essenciais</h2>
+<p>Após o sistema instalado, certifique-se de configurar os seguintes itens:</p>
+<h3 id="seguran%C3%A7a-e-acesso">Segurança e acesso</h3>
+<ul>
+<li>
+<p><strong>Usuário com permissão sudo (não-root)</strong><br>
+<a href="https://www.hostinger.com.br/tutoriais/como-criar-usuario-no-linux">Como criar um usuário sudo no Ubuntu (pt)</a></p>
+</li>
+<li>
+<p><strong>Acesso SSH configurado</strong><br>
+<a href="https://ubuntu.com/server/docs/service-openssh">Guia oficial do Ubuntu (en)</a></p>
+</li>
+<li>
+<p><strong>Firewall UFW ativo</strong><br>
+<a href="https://www.digitalocean.com/community/tutorials/como-configurar-um-firewall-com-ufw-no-ubuntu-18-04">Tutorial UFW (pt)</a></p>
+</li>
+<li>
+<p><strong>Atualizações automáticas de segurança ativadas</strong><br>
+<a href="https://ubuntu.com/server/docs/security-updates">Como configurar atualizações automáticas (en)</a></p>
+</li>
+<li>
+<p><strong>Fail2Ban (opcional, mas recomendado)</strong><br>
+<a href="https://linuxiac.com/como-instalar-e-configurar-o-fail2ban-no-ubuntu/">Guia Fail2Ban (pt)</a></p>
+</li>
+</ul>
+<br>
+<hr>
+<br>
+<h3 id="rede-e-dom%C3%ADnio">Rede e domínio</h3>
+<ul>
+<li>
+<p><strong>Domínio registrado</strong></p>
+</li>
+<li>
+<p><strong>Apontamento de DNS feito</strong><br>
+👉 <a href="https://www.hostinger.com.br/tutoriais/o-que-e-dns-e-como-apontar-um-dominio">Como apontar o domínio para um servidor (pt)</a></p>
+</li>
+</ul>
+<br>
+<hr>
+<br>
+<h3 id="%F0%9F%9A%80-servidor-web-e-certificados">🚀 Servidor web e certificados</h3>
+<ul>
+<li>
+<p><strong>Nginx instalado</strong><br>
+👉 <a href="https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04-pt">Guia Nginx (pt)</a></p>
+</li>
+<li>
+<p><strong>Certbot (Let's Encrypt)</strong><br>
+👉 <a href="https://certbot.eff.org/instructions?ws=nginx&amp;os=ubuntufocal">Instalação do Certbot com Nginx (pt)</a></p>
+</li>
+</ul>
+<br>
+<hr>
+<br>
+<h3 id="%F0%9F%A7%B1-cont%C3%AAineres-e-apps">🧱 Contêineres e apps</h3>
+<ul>
+<li>
+<p><strong>Docker instalado</strong><br>
+👉 <a href="https://docs.docker.com/engine/install/ubuntu/">Instalar Docker no Ubuntu (pt)</a></p>
+</li>
+<li>
+<p><strong>Docker Compose</strong><br>
+👉 <a href="https://docs.docker.com/compose/install/">Instalar Docker Compose (en)</a></p>
+</li>
+</ul>
+<br>
+<hr>
+<br>
+<h2 id="e-depois">E depois?</h2>
+<p>Com isso tudo pronto, seu servidor estará preparado para hospedar praticamente qualquer aplicativo. Cada novo guia da Sovereinia vai partir desse ponto. Quando encontrar uma instrução como:</p>
+<blockquote>
+<p>“Este guia assume que você já configurou os requisitos básicos do servidor.”</p>
+</blockquote>
+<p>… é desse artigo que estamos falando 😉</p>
+<br>
+<hr>
+<br>
+<h2 id="links-%C3%BAteis">Links úteis</h2>
+<ul>
+<li><a href="https://ubuntu.com/download/server">Como instalar o Ubuntu Server (en)</a></li>
+<li><a href="https://docs.docker.com/get-docker/">Guia de instalação do Docker (pt)</a></li>
+<li><a href="https://www.hostinger.com.br/tutoriais/o-que-e-uma-vps">Artigo: o que é uma VPS (pt)</a></li>
+</ul>
+
+<a class="back" href="/blog/">&larr; Voltar para o Blog</a>
+</main>
+<footer>
+  <div class="foot">
+    <span>Sovereinia — projeto brasileiro sobre soberania digital.</span>
+    <span><a href="/guia/">Guia de Apps</a> · <a href="https://github.com/Sovereinia">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

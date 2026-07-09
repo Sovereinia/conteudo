@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criando redes seguras com Reticulum</title>
+<meta name="description" content="Guia para a criação de redes com Reticulum e execução de Nodes na rede.">
+<meta name="author" content="Sovereinia">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sovereinia.org/blog/reticulum/">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="stylesheet" href="/style.css">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Sovereinia">
+<meta property="og:title" content="Criando redes seguras com Reticulum">
+<meta property="og:description" content="Guia para a criação de redes com Reticulum e execução de Nodes na rede.">
+<meta property="og:url" content="https://sovereinia.org/blog/reticulum/">
+</head>
+<body>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="/"><img src="/logo.svg" alt="Sovereinia"> Sovereinia</a>
+    <nav><a href="/guia/">Guia</a>
+<a href="/blog/">Blog</a>
+<a href="/sobre/">Sobre</a>
+<a href="/principios-da-sovereinia/">Princípios</a>
+<a href="/dicionario/">Dicionário</a>
+<a href="/demos/">Demos</a>
+<a href="/como-contribuir/">Contribuir</a></nav>
+  </div>
+</header>
+<main>
+
+<h1>Criando redes seguras com Reticulum</h1>
+<p class="meta">Publicado em 2025-08-12</p>
+<p>Quem já estudou o protocolo IP e o protocolo TCP, e outros na mesma camada, deve ter percebido quão inseguro e descriptografado são essas soluções. Sempre a criptografia é deixada para protocolos acima realizarem, como o caso do TLS em cima do TCP.</p><p>Nesse mesmo pensamento, alguns desenvolvedores talentosos decidiram tomar para si a tarefa de projetar e criar redes mais seguras, criptografadas e descentralizadas. Dois projetos me vem à mente quando falo disso: I2P e Reticulum. Este post é direcionado para o Reticulum, porém no futuro explicarei como o I2P funciona (por cima) e como se conectar a ela.</p><p>Esse é um guia que explica de forma superficial, mas profunda para a maioria das pessoas, o funcionamento do Reticulum e suas tecnologias. Após ler tudo, você entenderá em alguns minutos o que eu levei alguns dias para descobrir.</p><hr><h2 id="o-que-%C3%A9-reticulum">O que é Reticulum?</h2><p>Quando falamos de Reticulum podemos acabar confundindo a classe com a instância (para os meus programadores OOP de plantão). Há um stack de protocolos que compõe o Reticulum, chamado de Reticulum Network Stack (RNS). Esse é um grupo de protocolos que regem essa rede. Há também as Reticulum Networks, que são quaisquer redes construídas usando o RNS.</p><p>O Reticulum é uma rede como a Internet. Cada dispositivo tem um endereço e tem como enviar pacotes. Além de alguns computadores serem roteadores, isso é, conectarem dois pedaços de uma rede.<br>Reticulum é desenvolvido com três principais objetivos em mente:</p><h3 id="criptografia">Criptografia</h3><p>Todo o tráfego é criptografado. Quando um computador se conecta à rede, ele gera um par de chaves pública e privada. A chave pública é utilizada como destino (como um endereço IP é utilizado com o IP, ou um endereço MAC é usado em protocolos como o ARP) e para criptografar mensagens para o destinatário, enquando a privada descriptografa essas mensagens e assina mensagens (para ter certeza que o remetente é realmente quem ele diz ser).</p><h3 id="requerimento-de-banda-baixa">Requerimento de banda baixa</h3><p>Essa rede é muito recomendada para contextos com baixa banda, isso é, com transferência de informações lenta, como LoRa, uma tecnologia que permite a comunicação digital por longas distâncias, com o trade-off de ser mais lenta. Ela é muito (mais) utilizada em áreas rurais.</p><h3 id="agnosticismo-de-meio">Agnosticismo de meio</h3><p>A rede não deve segregar pelos meios em que certos computadores estão conectados à rede. Um computador pode se conectar a outro via USB, esse outro por uma conexão TCP, que pode utilizar LoRa para se conectar com outro. Nenhuma dessas situações deve trazer um problema para a rede. É como o lema do IP: </p><blockquote class="kg-blockquote-alt">O pacote acha um caminho.</blockquote><p>Com isso tudo, você tem uma rede segura, anônima (não coloquei como um ponto principal, mas não há necessidade de um remetente para as mensagens), leve e prática.</p><h2 id="conectando-se-%C3%A0-rede">Conectando-se à rede</h2><p>O RNS é desenvolvido em Python. Como para todo módulo de Python, para instalar você pode usar o pip:<br>
+<code>pip install rns</code>.</p>
+<p>Atenção: </p><ul><li>Não há uma rede universal do Reticulum que pode se comparar com a Internet. Então tudo depende dos Nodes que você conectar (mais sobre Nodes em seguida);</li><li>O Reticulum toma o papel do TCP/IP, o que quer dizer que na prática você não consegue fazer nada <strong>apenas </strong>com Reticulum. Você precisa de uma outra camada, como o NomadNet ou LXMF (ou criar o seu próprio protocolo, por que não?)</li></ul><p>Após instalar, você deve criar uma configuração e adicionar algumas interfaces (conexões):<br>
+<code>mkdir ~/.reticulum</code><br>
+<code>rnsd --exampleconfig &gt; ~/.reticulum/config</code><br>
+Abra o arquivo <code>~/.reticulum/config</code> e vá até a seção <code>[interfaces]</code>. Você pode ler os comentários de cada uma e utilizar como referência.<br>
+Você pode perceber que em cada entrada (interface) há uma opção <code>enabled</code>, que está configurada para <code>no</code> em todas menos a primeira. Isso quer dizer que não há problema em deixar elas ali, já que estão desativadas.</p>
+<p>Eu recomendo se conectar a dois Nodes via TCP que são da testnet, ou seja, uma rede meio universal para testes:</p>
+<pre><code>  [[RNS Testnet Dublin]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = dublin.connect.reticulum.network
+    target_port = 4965
+
+  [[RNS Sideband Network]]
+    type = TCPClientInterface
+    enabled = yes
+    target_host = sideband.connect.reticulum.network
+    target_port = 7822
+</code></pre>
+<p>Após adicionar tudo isso e salvar, simplesmente rode <code>rnsd</code>.<br>
+Se tudo ocorreu bem, você está agora conectado ao Reticulum!</p>
+<h2 id="como-usar-esse-novo-poder">Como usar esse novo poder</h2><p>Há dois protocolos/redes em cima do Reticulum que eu recomendo testar: LXMF e NomadNet.</p><h3 id="lxmf">LXMF</h3><p>LXMF é um protocolo de mensagens e telemetria para o Reticulum, ou seja, é um equivalente ao protocolo do Whatsapp, ou ao XMPP e Matrix.<br>Ele também suporta telemetria (localização, dados de um dispositivo, etc...) no aplicativo Sideband, um dos programas utilizados para interagir com LXMF.</p><h3 id="nomadnet">NomadNet</h3><p>Até onde eu entendi, NomadNet é o mais próximo da Web que há dentro do Reticulum. Lá existem páginas que se assemelham a sites.</p><p>O que pode criar um pouco de confusão é o fato do programa que se chama <code>nomadnet</code> ser um cliente para a <strong>rede</strong> NomadNet <strong>e</strong> um cliente LXMF.</p>
+<p>Para instalar: <code>pip install nomadnet</code>.<br>
+Rode o daemon do Reticulum primeiro se não rodou (<code>rnsd</code>) e rode <code>nomadnet</code> em outro terminal. Você será apresentado uma interface bonitinha para ver Announces de Nodes e Peers. Você pode então interagir com alguns "sites" e conversar com algumas pessoas. O meu nick é <code>roaccess</code> e a minha chave pública <code>&lt;c472cb17d601ba4ed2564a229c84d8c5&gt;</code> (no dia da escrita desse artigo, talvez tenha mudado). Pode me mandar uma mensagem por lá!</p>
+<h2 id="entendendo-announces-nodes-e-peers">Entendendo Announces, Nodes e Peers</h2><p>Esses são três termos muito importantes para o Reticulum e super simples.<br>Nodes são computadores que roteiam mensagens pelas suas interfaces. Lembra das interfaces que você adicionou no arquivo de configuração? Se você rodar um Node do Reticulum, todas elas serão conectadas, e você será um dos, se não o único, elos que conecta esses outros Nodes.<br>Peers são usuários comuns da rede, que não roteiam mensagens. Se você rodar o daemon com os defaults, você será um Peer.<br>Um Announce é uma característica mais específica do Reticulum. Ele é uma mensagem que diz que você existe e está em um endereço específico. Todos os dispositivos recebem esse Announce. O Announce é basicamente uma mensagem para o broadcast dizendo seu nome e endereço.</p><h3 id="n%C3%A3o-confunda-os-nodes">Não confunda os Nodes!</h3><p>Há três principais tipos de Nodes, mas um para cada camada. Isso é uma crítica minha ao projeto, o termo Node é utilizado para o Reticulum, NomadNet e LXMF. E cada um deles é diferente. Mas não se assuste ou desanime, eu vou salvar você:</p>
+<ul>
+<li>Node do Reticulum: O que eu expliquei anteriormente. Ele roda na camada do Reticulum, o que quer dizer que ele pode rotear mensagens de protocolos acima da rede, como o LXMF.</li>
+<li>Node do NomadNet: Esses são os tais <em>sites</em>. Um Node NomadNet vai servir páginas. Ele não roteia mensagens.</li>
+<li>Node do LXMF: Também conhecido como Nodes de Propagação (Propagation Nodes), eles roteiam mensagens LXMF e salvam. É como se fosse um servidor XMPP que guarda as mensagens enquanto você não synca com ele. O bom é que você pode mudar de Propagation Node a hora que quiser. É literalmente <em>a dois cliques de distância</em>.</li>
+</ul>
+<h2 id="hospedando-um-node">Hospedando um Node</h2><p>O nome do site é Sovereinia, não? Então vamos fazer o nosso próprio para ganharmos soberania! Vou explicar como hospedar cada um dos tipos de Node.</p><h3 id="node-do-reticulum">Node do Reticulum</h3><p>O setup de um Node do Reticulum é feito pelo daemon, <code>rnsd</code>, no arquivo de configuração de antes. Então abra o arquivo <code>~/.reticulum/config</code> e ative a opção <code>enable_transport</code> embaixo de <code>[reticulum]</code> (mude de <code>False</code> para <code>True</code>, ou de <code>No</code> para <code>Yes</code>).<br>
+Por padrão, as interfaces têm um <code>mode = full</code>, o que quer dizer que elas já vão fazer o transporte de mensagens por padrão. Se você quiser desativar o transporte para alguma interface, mude o <code>mode</code>: <a href="https://reticulum.network/manual/interfaces.html#interfaces-modes">Explicação dos Modes</a>.<br>
+Agora o seu Node já está funcionando. Você pode se conectar à ele por meio das interfaces. Se você quer acessar por TCP, crie uma interface TCP e edite a opção <code>listen_ip</code> e <code>listen_port</code>. Outras interfaces têm outras configurações, então <a href="https://reticulum.network/manual/interfaces.html#tcp-server-interface">veja a documentação</a>.<br>
+Um cliente poderá conectar ao seu Node por meio de uma interface que tem um <em>listener</em>, ou seja, um endereço de entrada, como um IP ou uma porta Serial.</p>
+<h4 id="algumas-configura%C3%A7%C3%B5es-legais">Algumas configurações legais</h4>
+<ol>
+<li>Autenticação: você pode adicionar uma senha para certas interfaces. Se alguém que não sabe a senha tenta conectar, ele dá erro de autenticação e barra a conexão. A opção é <code>passphrase</code>. Você adiciona ela embaixo de uma entrada de interface.</li>
+<li>Responder à probes: se você quiser configurar o Node para responder a pings do Reticulum (probes), a opção <code>respond_to_probes</code> deve estar ativa. O padrão é não responder à probes. Essa opção está na seção <code>[reticulum]</code>.</li>
+<li>Nome da rede: esse pode ser um pouco complicado de entender, mas você pode configurar um nome de rede para cada interface, e cada interface que tiver um nome de rede especificado só poderá se comunicar por meio daquela rede. Assim, você pode ter, por exemplo, três interfaces em um Node, mas duas delas são de uma rede e a outra é de outra rede. Assim, elas estão separadas. A opção é <code>network_name</code>. Eu mesmo não entendi essa opção 100%.</li>
+</ol>
+<h3 id="node-do-nomadnet">Node do NomadNet</h3><p>Esse é o guia para hospedar um "site" na NomadNet. NomadNet usa um tipo de arquivo chamado micron, como se fosse o HTML da Web.<br>
+Edite o arquivo <code>~/.nomadnetwork/config</code> e ache a linha <code>[node]</code>. Tudo para baixo dessa linha é referente a um Node.</p>
+<p>O root do Node fica em <code>~/.nomadnetwork/storage/pages/</code>. Lá você coloca um <code>index.mu</code> que é o equivalente do <code>index.html</code>. Agora experimente e se divirta!</p>
+<h3 id="node-de-propaga%C3%A7%C3%A3o">Node de Propagação</h3><p>Com um Node NomadNet: Abra o arquivo de configuração do nomadnet (<code>~/.nomadnetwork/config</code>) e desative a opção <code>disable_propagation</code>. Isso fará com que ele também seja um Node de Propagação.<br>
+Sem um Node NomadNet: Rode o comando <code>lxmd -p</code>. Ele rodará o daemon do LXMF com a opção de propagação. Se você não tiver esse comando, instale via pip o lxmf: <code>pip install lxmf</code>.</p>
+<h2 id="n%C3%A3o-gosto-de-tui-d%C3%A1-me-um-webapp">Não gosto de TUI! Dá-me um WebApp!</h2><p>Seu desejo é uma ordem: <a href="https://github.com/liamcottle/reticulum-meshchat/">MeshChat</a> e <a href="https://github.com/markqvist/Sideband/">Sideband</a>.<br>
+O MeshChat é um aplicativo que roda um servidor Web e se conecta com o daemon Reticulum. Ele é bem agradável e bonito. Não cobrirei o setup aqui, porém ele vem com defaults que funcionam. Apenas baixe o release e rode o programa em Python.<br>
+O Sideband é um programa que tem uma interface própria e funciona em Android, Linux e MacOS.<br>
+O meu cliente gráfico preferido é o MeshChat.</p>
+<hr><p>Então é isso. Agora você tem o conhecimento e ferramentas para interagir com essa rede fantástica!<br>Se você me achar lá, mande um oi! Se tiver qualquer dúvida, pode me mandar também!<br>Eu não cobri aqui, porém há imagens para Docker de Reticulum e NomadNet, o que pode facilitar o deploy de Nodes.</p><p><strong>PS: Se você rodar um Node, me mande para eu me conectar diretamente à ele.</strong></p>
+
+<a class="back" href="/blog/">&larr; Voltar para o Blog</a>
+</main>
+<footer>
+  <div class="foot">
+    <span>Sovereinia — projeto brasileiro sobre soberania digital.</span>
+    <span><a href="/guia/">Guia de Apps</a> · <a href="https://github.com/Sovereinia">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
