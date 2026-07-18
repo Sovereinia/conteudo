@@ -6,12 +6,10 @@ on:
       - main
   workflow_dispatch:
 
-# Deploys the static site (this repo) to the VM. nginx serves it at https://sovereinia.org/.
-# The /guia/ subdirectory is deployed independently by the Sovereinia/guia repo, so it is
-# excluded here and protected from --delete.
+# Deploys the static site to the VM. nginx serves it at https://sovereinia.org/.
+# /guia/ is deployed by Sovereinia/guia and is excluded from --delete.
+# DEPLOY_HOST secret = direct SSH host (not Cloudflare orange-cloud apex). Never commit IPs.
 env:
-  DEPLOY_HOST: "sovereinia.org"
-  DEPLOY_USER: "deploy"
   DEPLOY_PATH: "/srv/apps/sovereinia/"
 
 jobs:
@@ -25,28 +23,36 @@ jobs:
       - name: Setup SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
+          set -euo pipefail
+          if [ -z "${DEPLOY_HOST:-}" ]; then
+            echo "DEPLOY_HOST secret is required (direct SSH host; not CF-proxied apex)"; exit 1
+          fi
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          SCAN_HOST="${DEPLOY_HOST##*@}"
+          ssh-keyscan -H "$SCAN_HOST" >> ~/.ssh/known_hosts 2>/dev/null
           if [ ! -s ~/.ssh/deploy_key ]; then
             echo "Private key is missing or empty"; exit 1
           fi
 
       - name: Deploy site to VM
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'deploy' }}
         run: |
-          # Mirror the repo (minus VCS/CI/meta files) to the serving directory.
-          # --delete keeps the remote a clean mirror; excluded paths are also protected
-          # from deletion, so the separately-deployed guia/ subdir stays intact.
+          set -euo pipefail
+          HOST="${DEPLOY_HOST##*@}"
           rsync -az --delete \
             --exclude '.git/' \
             --exclude '.github/' \
             --exclude 'README.md' \
             --exclude 'guia/' \
             -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}"
+            ./ "${DEPLOY_USER}@${HOST}:${DEPLOY_PATH}"
 
       - name: Smoke test
         run: |
